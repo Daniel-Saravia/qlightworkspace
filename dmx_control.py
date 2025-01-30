@@ -1,3 +1,4 @@
+from pynput import keyboard  # Alternative library for key detection
 import time
 import websocket
 import socket
@@ -5,48 +6,58 @@ import socket
 def get_host_ip():
     """Retrieve the local host computer's IP address."""
     try:
-        # Create a socket connection to determine the local IP address
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            # Use a dummy address; the IP won't actually connect
             s.connect(("8.8.8.8", 80))
             return s.getsockname()[0]
     except Exception as e:
         print(f"Error determining host IP: {e}")
-        return "127.0.0.1"  # Default to localhost on failure
+        return "127.0.0.1"
 
-# Replace with the IP or hostname of the machine running QLC+,
-# and ensure QLC+ is started with the web interface enabled (qlcplus -w).
 QLC_IP = get_host_ip()
 QLC_WS_URL = f"ws://{QLC_IP}:9999/qlcplusWS"
 
-def main():
+ws = websocket.WebSocket()
+ws.connect(QLC_WS_URL)
+print(f"Connected to QLC+ WebSocket at {QLC_WS_URL}.")
+
+pan_value = 128  # Initial value for pan (channel 1)
+tilt_value = 128  # Initial value for tilt (channel 3)
+
+def send_dmx_value(channel, value):
+    """Send a DMX value to the specified channel."""
+    ws.send(f"CH|{channel}|{value}")
+    print(f"Sent: CH|{channel}|{value}")
+
+def on_press(key):
+    global pan_value, tilt_value
+
     try:
-        # Create a WebSocket connection to QLC+
-        ws = websocket.WebSocket()
-        ws.connect(QLC_WS_URL)
-        print(f"Connected to QLC+ WebSocket at {QLC_WS_URL}.")
+        if key == keyboard.Key.right:
+            pan_value = min(pan_value + 50, 255)
+            send_dmx_value(1, pan_value)
+        elif key == keyboard.Key.left:
+            pan_value = max(pan_value - 50, 0)
+            send_dmx_value(1, pan_value)
+        elif key == keyboard.Key.up:
+            tilt_value = min(tilt_value + 50, 255)
+            send_dmx_value(3, tilt_value)
+        elif key == keyboard.Key.down:
+            tilt_value = max(tilt_value - 50, 0)
+            send_dmx_value(3, tilt_value)
+    except AttributeError:
+        pass  # Ignore non-special keys
 
-        # Example 1: Set channel 1 (Pan) to full (255)
-        ws.send("CH|1|255")
-        print("Sent: CH|1|255 (Channel 1 -> 255)")
-        time.sleep(2)
+def on_release(key):
+    if key == keyboard.KeyCode.from_char('q'):
+        print("Exiting...")
+        return False  # Stop the listener
 
-        # Example 2: Set channel 1 (Pan) to zero (0)
-        ws.send("CH|1|0")
-        print("Sent: CH|1|0   (Channel 1 -> 0)")
-        time.sleep(2)
+print("Use arrow keys to control pan (left/right) and tilt (up/down). Press 'q' to quit.")
 
-        # Example 3: Reset entire universe (like pressing the Reset button in Simple Desk)
-        # This uses the QLC+API command format:
-        ws.send("QLC+API|sdResetUniverse")
-        print("Sent: QLC+API|sdResetUniverse (Reset all channels in current Universe)")
-        time.sleep(2)
+# Set up the key listener
+with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+    listener.join()
 
-        # Close the connection
-        ws.close()
-        print("WebSocket closed.")
-    except Exception as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    main()
+# Close the WebSocket connection``
+ws.close()
+print("WebSocket closed.")
