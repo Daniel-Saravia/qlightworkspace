@@ -1,3 +1,12 @@
+"""
+Citations:
+- `pynput`: https://pypi.org/project/pynput/
+- `websocket-client`: https://pypi.org/project/websocket-client/
+- Python `socket` library documentation: https://docs.python.org/3/library/socket.html
+
+This script connects to a QLC+ WebSocket server and allows the user to control pan and tilt DMX values using arrow keys.
+"""
+
 from pynput import keyboard  # Alternative library for key detection
 import time
 import websocket
