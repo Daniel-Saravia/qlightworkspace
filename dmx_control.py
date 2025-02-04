@@ -1,4 +1,7 @@
 """
+Daniel Saravia
+STG-452: Capstone Project II
+February 2, 2025
 Citations:
 - `pynput`: https://pypi.org/project/pynput/
 - `websocket-client`: https://pypi.org/project/websocket-client/
