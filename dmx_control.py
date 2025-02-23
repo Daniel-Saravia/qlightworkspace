@@ -1,3 +1,18 @@
+"""
+Daniel Saravia
+STG-452: Capstone Project II
+February 2, 2025
+Citations:
+- `pynput`: https://pypi.org/project/pynput/
+- `websocket-client`: https://pypi.org/project/websocket-client/
+- Python `socket` library documentation: https://docs.python.org/3/library/socket.html
+
+This script connects to a QLC+ WebSocket server and allows the user to control pan and tilt DMX values using arrow keys.
+
+website to complete this assignment:
+https://chatgpt.com/share/67bb92eb-d380-8012-8681-535bc6395a02
+(used as starter code for basic functionality).
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
