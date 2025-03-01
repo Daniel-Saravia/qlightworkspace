@@ -1,6 +1,7 @@
 # Moving Headlight Controller
 
 [![Demo Video](https://img.youtube.com/vi/x1sY_NfgiZQ/0.jpg)](https://www.youtube.com/watch?v=x1sY_NfgiZQ&ab_channel=DanielSaravia)
+![Screenshot from 2025-02-28 19-24-08](https://github.com/user-attachments/assets/6d032df1-543c-4455-8a6c-6cba59306d1d)
 
 This Python script connects to a QLC+ WebSocket server, enabling automated DMX control and dynamic 3D visualization. It maps DMX pan and tilt values to visualize beam direction, movement paths, and a beam spread cone in real time.
 
