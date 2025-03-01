@@ -1,27 +1,28 @@
 # QLC+ WebSocket Controller
 ![image](https://github.com/user-attachments/assets/8a3ad0e1-aebd-4ec4-83d7-920381c55baf)
-https://www.youtube.com/watch?v=x1sY_NfgiZQ&ab_channel=DanielSaravia
+[![Demo Video](https://www.youtube.com/watch?v=x1sY_NfgiZQ&ab_channel=DanielSaravia)
 
-This Python script connects to a QLC+ WebSocket server and demonstrates interactive control of DMX channels using the keyboard arrow keys. It dynamically determines the host machine’s IP address, allowing seamless integration with the local QLC+ server.
+This Python script connects to a QLC+ WebSocket server and demonstrates DMX control with dynamic 3D visualization. It automatically maps DMX pan and tilt values to a 3D beam direction, visualizes the beam movement along a great circle path, and displays a light cone representing the beam’s spread.
+
+> **Note:** Although earlier versions supported interactive control via keyboard arrow keys, this updated version automatically simulates pan movement (with a fixed tilt) and visualizes the results in real time. You can still integrate keyboard control (e.g., with `pynput`) if desired.
 
 ## Features
-
-- **Dynamically resolves** the host computer’s IP address.  
-- **Connects** to a QLC+ WebSocket server for remote DMX control.  
-- **Real-time key-based DMX control** using arrow keys:
-  - Left/Right arrows adjust **pan** (Channel 1).  
-  - Up/Down arrows adjust **tilt** (Channel 3).  
-- **Increment/Decrement** values in steps of 50.  
-- **Press ‘q’** to exit the script gracefully.
+- **Dynamic IP Detection:** Automatically determines your local computer’s IP address.
+- **WebSocket Connection:** Establishes a connection to QLC+ at `ws://<LOCAL_IP>:9999/qlcplusWS`.
+- **DMX Mapping:** Converts DMX values for pan and tilt into a 3D unit vector using a custom mapping function.
+- **3D Visualization:** 
+  - Displays a scatter plot of DMX-to-direction mappings.
+  - Plots a reference great circle path (with tilt fixed to 0°).
+  - Animates a beam marker representing the current DMX values.
+  - Renders a dynamic light cone showing the beam’s spread.
+- **Automatic Movement:** Oscillates the pan value between 0° and 360° (with tilt fixed at 0°) to simulate a scanning motion.
+- **Graceful Termination:** Interrupt the simulation with `Ctrl+C` to safely close the WebSocket connection.
 
 ## File Structure
-
-Here’s what the workspace might look like:
-
 ```
 .
-├── dmx_control.py        # Python script for controlling QLC+ via WebSocket
-├── keypad.html           # HTML file for keypad interface
+├── dmx_control.py        # Python script for controlling QLC+ via WebSocket with 3D visualization
+├── keypad.html           # (Optional) HTML file for a keypad interface (for interactive control)
 ├── qlight_workspace.qxw  # QLC+ workspace file
 ├── README.md             # Project documentation
 └── requirements.txt      # Python dependencies
@@ -30,37 +31,51 @@ Here’s what the workspace might look like:
 ## Prerequisites
 
 ### Python Requirements
+- Python 3.x
 
-- **Python 3.x**  
-- Install the dependencies from `requirements.txt`:
+Install the dependencies from `requirements.txt`:
 
-  ```bash
-  pip install -r requirements.txt
-  ```
+```bash
+pip install -r requirements.txt
+```
 
 ### QLC+ Setup
+- Install and run QLC+ on your host machine.
+- Start QLC+ with the web interface enabled:
 
-1. **Install and run** QLC+ on the host machine.  
-2. Start QLC+ with the web interface enabled:
-   ```bash
-   qlcplus -w
-   ```
-3. By default, QLC+ listens on port **9999** for WebSocket connections.
+  ```bash
+  qlcplus -w
+  ```
+  
+- By default, QLC+ listens on port **9999** for WebSocket connections.
 
 ## How It Works
+1. **Dynamic IP Detection:**  
+   The script uses the Python `socket` module to automatically determine your local IP address.
 
-1. The script uses the `socket` module to determine your **local IP address** automatically.  
-2. A **WebSocket** connection is established to the QLC+ server at `ws://<LOCAL_IP>:9999/qlcplusWS`.  
-3. The script **listens** for keyboard arrow key presses:
-   - **Left/Right** adjust **Pan** (Channel 1).
-   - **Up/Down** adjust **Tilt** (Channel 3).
-4. Each press **sends** the updated DMX value to QLC+.  
-5. Press **‘q’** to **quit** the script and close the WebSocket connection.
+2. **WebSocket Connection:**  
+   A connection is established to the QLC+ server at `ws://<LOCAL_IP>:9999/qlcplusWS`.
+
+3. **DMX-to-XYZ Mapping:**  
+   DMX values for pan and tilt are converted into a 3D unit vector representing the beam direction. The mapping assumes:
+   - **Pan:** DMX (0–255) maps to 0°–540° rotation about the Z-axis.
+   - **Tilt:** DMX (0–255) maps to 0°–205° rotation about the X-axis.
+
+4. **Visualization:**  
+   - A grid of DMX values is converted into corresponding 3D vectors and displayed as a background field.
+   - A red great circle path is plotted as a reference.
+   - An animated beam marker shows the current DMX-driven direction.
+   - A dynamic light cone is computed and rendered to illustrate the beam’s spread.
+
+5. **Automatic Movement:**  
+   The script automatically oscillates the pan value (while keeping tilt at 0°), sending updated DMX commands to QLC+ in a loop. This simulates a continuous scanning motion.
+
+6. **Graceful Exit:**  
+   Use `Ctrl+C` (triggering a KeyboardInterrupt) to stop the simulation. The WebSocket connection will then be closed safely.
 
 ## Usage
-
-1. **Clone** or **download** the project files.  
-2. Install dependencies:
+1. Clone or download the project files.
+2. Install the dependencies:
    ```bash
    pip install -r requirements.txt
    ```
@@ -68,73 +83,66 @@ Here’s what the workspace might look like:
    ```bash
    python dmx_control.py
    ```
-4. Use the **arrow keys** to control **Pan** (left/right) and **Tilt** (up/down).  
-5. Press **‘q’** at any time to **exit**.
+4. An interactive matplotlib window will open showing the 3D visualization.  
+5. To exit, press `Ctrl+C` in the terminal.
 
 ## Example Output
-
 ```
 Connected to QLC+ WebSocket at ws://192.168.1.50:9999/qlcplusWS.
-Use arrow keys to control pan (left/right) and tilt (up/down). Press 'q' to quit.
 Sent: CH|1|178
-Sent: CH|1|228
-Sent: CH|3|178
-Exiting...
+Sent: CH|3|0
+...
+Movement interrupted by user.
 WebSocket closed.
 ```
 
 ## Requirements
-
-Dependencies listed in **requirements.txt**:
-
-```
-certifi==2024.12.14
-charset-normalizer==3.4.1
-idna==3.10
-requests==2.32.3
-urllib3==2.3.0
-websocket-client==1.8.0
-pynput==1.7.6
-```
+Dependencies listed in `requirements.txt`:
+- certifi==2024.12.14
+- charset-normalizer==3.4.1
+- idna==3.10
+- requests==2.32.3
+- urllib3==2.3.0
+- websocket-client==1.8.0
+- pynput==1.7.6
 
 Install them using:
-
 ```bash
 pip install -r requirements.txt
 ```
 
 ## Code Overview
+The main script (`dmx_control.py`) includes:
 
-### `dmx_control.py`
+- **Imports:**  
+  Uses `numpy` for numerical operations, `matplotlib` (with `mpl_toolkits.mplot3d`) for 3D visualization, and `websocket` for WebSocket communication.
 
-- **Imports**:
-  - `socket` for obtaining the local IP address.
-  - `websocket` from `websocket-client` for WebSocket communication.
-  - `pynput.keyboard` for **arrow key** detection.
-- **`get_host_ip()`**:
-  - Dynamically retrieves the local IP address by connecting to an external host (8.8.8.8).
-- **Global Variables**:
-  - `pan_value` and `tilt_value` start at `128`.
-  - Each arrow key press increments or decrements by `50`, bounded between `0` and `255`.
-- **Key Handlers**:
-  - Arrow keys **update** DMX channel 1 (Pan) or 3 (Tilt).
-  - `'q'` key **exits** the script.
-- **WebSocket Connection**:
-  - Connects to `ws://<LOCAL_IP>:9999/qlcplusWS`.
-  - Sends DMX channel updates in the format: `CH|<channel>|<value>`.
+- **Dynamic IP Detection:**  
+  The `get_host_ip()` function retrieves your local IP address by creating a UDP connection to a public DNS server.
 
-## Customization
+- **DMX-to-XYZ Conversion:**  
+  The `dmx_to_xyz()` function maps DMX values for pan and tilt to a 3D direction vector. This vector is then used to update the beam’s direction in the visualization.
 
-- **Channel Assignments**: Adjust the pan/tilt channels in `dmx_control.py` if your fixture uses different channel numbers.
-- **Step Size**: Modify the increment/decrement amount (`50`) to achieve finer or coarser control.
-- **WebSocket URL**: Change `QLC_WS_URL` to point to a different IP or port if needed.
+- **Visualization Setup:**  
+  The script:
+  - Creates a grid of DMX values and maps them to 3D vectors.
+  - Plots these as a scatter field.
+  - Draws a reference great circle path.
+  - Initializes an animated marker for the current beam direction.
+  - Computes and displays a dynamic light cone based on the beam direction.
 
-## Error Handling
+- **Automatic Movement:**  
+  A loop updates the pan angle (oscillating between 0° and 360°), computes corresponding DMX values, sends them to QLC+, and updates the visualization in real time.
 
-- If the local IP cannot be determined, the script **defaults** to `127.0.0.1`.
-- Exceptions during WebSocket connection or key handling are **caught and printed** to the console.
+- **Graceful Termination:**  
+  The script catches a `KeyboardInterrupt` to stop the movement and close the WebSocket connection.
+
+## Citations
+- `pynput`: https://pypi.org/project/pynput/
+- `websocket-client`: https://pypi.org/project/websocket-client/
+- Python `socket` library documentation: https://docs.python.org/3/library/socket.html
+- Starter code inspiration: [ChatGPT Share](https://chatgpt.com/share/67bb92eb-d380-8012-8681-535bc6395a02)
 
 ## License
-
-This script is open-source and available under the **MIT License**. Feel free to modify and distribute it as needed.
+This project is open-source and available under the [MIT License](LICENSE). Feel free to modify and distribute it as needed.
 
