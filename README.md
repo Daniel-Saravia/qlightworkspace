@@ -1,6 +1,7 @@
 # QLC+ WebSocket Controller
 ![image](https://github.com/user-attachments/assets/8a3ad0e1-aebd-4ec4-83d7-920381c55baf)
 https://www.youtube.com/watch?v=x1sY_NfgiZQ&ab_channel=DanielSaravia
+
 This Python script connects to a QLC+ WebSocket server and demonstrates interactive control of DMX channels using the keyboard arrow keys. It dynamically determines the host machine’s IP address, allowing seamless integration with the local QLC+ server.
 
 ## Features
