@@ -1,7 +1,7 @@
 # QLC+ WebSocket Controller
 
 [![Demo Video](https://img.youtube.com/vi/x1sY_NfgiZQ/0.jpg)](https://www.youtube.com/watch?v=x1sY_NfgiZQ&ab_channel=DanielSaravia)
-
+![Screenshot from 2025-02-28 19-24-08](https://github.com/user-attachments/assets/0ba71b3f-071e-4913-bd7a-84f54f40c78a)
 This Python script connects to a QLC+ WebSocket server and demonstrates DMX control with dynamic 3D visualization. It automatically maps DMX pan and tilt values to a 3D beam direction, visualizes the beam movement along a great circle path, and displays a light cone representing the beam’s spread.
 
 > **Note:** Although earlier versions supported interactive control via keyboard arrow keys, this updated version automatically simulates pan movement (with a fixed tilt) and visualizes the results in real time. You can still integrate keyboard control (e.g., with `pynput`) if desired.
